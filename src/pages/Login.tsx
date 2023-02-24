@@ -1,26 +1,29 @@
-import React, {
-  useEffect,
-  useState,
-} from "react";
+import React, { useState } from "react";
 import {
   Button,
   Grid,
   TextField,
   Typography,
 } from "@mui/material";
-// import {
-//   useAppDispatch,
-//   useAppSelector,
-// } from "../store/hooks";
+import {
+  useAppSelector,
+  useThunkAppDispatch,
+} from "../store/hooks";
 import { useNavigate } from "react-router-dom";
 import AssignmentIcon from "@mui/icons-material/Assignment";
+
+import { loginAction } from "../store/modules/loginSlice";
 // import { login } from "../store/modules/LoginSlice";
 
 const Login: React.FC = () => {
-  // const [email, setMail] = useState<string>('');
-  // const [password, setPassword] = useState<string>('');
-  // const loginRedux = useAppSelector(state => state.login);
+  const userLogged = useAppSelector(
+    (state) => state.login
+  );
+  const [email, setMail] = useState<string>("");
+  const [password, setPassword] =
+    useState<string>("");
   // const dispatch = useAppDispatch();
+  const thunkDispatch = useThunkAppDispatch();
   const navigate = useNavigate();
 
   // useEffect(() => {
@@ -30,18 +33,34 @@ const Login: React.FC = () => {
   //   }
   // }, [loginRedux, navigate]);
 
-  // const handleLogin = () => {
-  //   if (email.length < 6 || password.length < 6) {
-  //     alert('Preencha os campos corretamente ou crie uma nova conta');
-  //   } else {
-  //     const userExist = loginRedux.userList.findIndex(user => user.email === email);
-  //     if (userExist === -1) return alert('Usuario não encontrado');
-  //     const isPasswordOk = loginRedux.userList[userExist].password === password;
-  //     if (!isPasswordOk) return alert('Senha incorreta');
-  //     dispatch(login(email));
-  //     navigate('/');
-  //   }
-  // };
+  const handleLogin = async () => {
+    if (!email || email.length < 6) {
+      alert(
+        "Preencha o email com pelo menos 6 letras"
+      );
+      return;
+    }
+    if (!password || password.length < 6) {
+      alert(
+        "Preencha a senha com pelo menos 6 letras"
+      );
+      return;
+    }
+
+    const login = {
+      email,
+      password,
+    };
+    const result = await thunkDispatch(
+      loginAction(login)
+    ).unwrap();
+    if (!result.ok) {
+      alert(result.message);
+      return;
+    }
+    navigate("/");
+  };
+
   const handleToRegister = () => {
     navigate("/register");
   };
@@ -79,12 +98,12 @@ const Login: React.FC = () => {
           <Grid item xs={12}>
             <TextField
               id="outlined-email"
-              // onChange={(ev) =>
-              //   setMail(ev.target.value)
-              // }
+              onChange={(ev) =>
+                setMail(ev.target.value)
+              }
               label="Email"
               type="email"
-              // value={email || ""}
+              value={email || ""}
               variant="outlined"
               fullWidth
             />
@@ -92,12 +111,12 @@ const Login: React.FC = () => {
           <Grid item xs={12}>
             <TextField
               id="outlined-Password"
-              // onChange={(ev) =>
-              //   setPassword(ev.target.value)
-              // }
+              onChange={(ev) =>
+                setPassword(ev.target.value)
+              }
               label="Senha"
               type="password"
-              // value={password || ""}
+              value={password || ""}
               variant="outlined"
               fullWidth
             />
@@ -111,7 +130,7 @@ const Login: React.FC = () => {
                 justifyContent="space-evenly"
               >
                 <Button
-                  // onClick={handleLogin}
+                  onClick={handleLogin}
                   variant="contained"
                 >
                   Logar
