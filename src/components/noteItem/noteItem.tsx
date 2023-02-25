@@ -81,20 +81,41 @@ const NoteItem: React.FC<NoteItemProps> = ({
   );
 
   const handleArchived = () => {
-    // eslint-disable-next-line no-restricted-globals
-    const archived = confirm(
-      "Deseja arquivar essa nota?"
-    );
-    if (!archived) {
-      return;
-    }
-    if (archived) {
+    console.log(note._filed);
+
+    if (note._filed === false) {
+      // eslint-disable-next-line no-restricted-globals
+      const archived = confirm(
+        "Deseja arquivar essa nota?"
+      );
+      if (!archived) {
+        return;
+      }
       const data = {
         userId: userLogged.user.id,
         noteId: note._id,
         title: note._title,
         description: note._description,
-        filed: note._filed,
+        filed: true,
+      };
+      const result = thunkDispatch(
+        updateNoteAction(data)
+      );
+    }
+    if (note._filed === true) {
+      // eslint-disable-next-line no-restricted-globals
+      const archived = confirm(
+        "Deseja desarquivar essa nota?"
+      );
+      if (!archived) {
+        return;
+      }
+      const data = {
+        userId: userLogged.user.id,
+        noteId: note._id,
+        title: note._title,
+        description: note._description,
+        filed: false,
       };
       const result = thunkDispatch(
         updateNoteAction(data)
