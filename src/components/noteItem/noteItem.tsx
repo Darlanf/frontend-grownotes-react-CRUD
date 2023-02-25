@@ -18,8 +18,15 @@ import React, {
   useState,
 } from "react";
 
-import { useAppSelector } from "../../store/hooks";
-import { selectAll } from "../../store/modules/notesSlice";
+import {
+  useAppSelector,
+  useThunkAppDispatch,
+} from "../../store/hooks";
+import {
+  deleteNoteAction,
+  selectAll,
+  updateNoteAction,
+} from "../../store/modules/notesSlice";
 
 interface NoteItemProps {
   note: any;
@@ -39,16 +46,27 @@ const NoteItem: React.FC<NoteItemProps> = ({
     useState<string>("");
   const [editDescription, setDescription] =
     useState<string>("");
+  const thunkDispatch = useThunkAppDispatch();
 
   const handleDeleteNote = useCallback(
     (note: any) => {
-      // const deleted = confirm(
-      //   "Deseja deletar essa nota?"
-      // );
-      // if (deleted) {
-      // dispatch(deleteNote(note.id));
-      alert("Nota apagada!");
-      // }
+      const path = {
+        userId: userLogged.user.id,
+        noteId: note._id,
+      };
+      // eslint-disable-next-line no-restricted-globals
+      const deleted = confirm(
+        "Deseja deletar essa nota?"
+      );
+      if (!deleted) {
+        return;
+      }
+      if (deleted) {
+        const result = thunkDispatch(
+          deleteNoteAction(path)
+        );
+        alert("Nota apagada!");
+      }
     },
     []
   );
@@ -56,19 +74,42 @@ const NoteItem: React.FC<NoteItemProps> = ({
   const openEditModal = useCallback(
     (note: any) => {
       setOpenEdit(true);
-      setTitle(note.title);
-      setDescription(note.description);
+      setTitle(note._title);
+      setDescription(note._description);
     },
     []
   );
 
+  const handleArchived = () => {
+    // eslint-disable-next-line no-restricted-globals
+    const archived = confirm(
+      "Deseja arquivar essa nota?"
+    );
+    if (!archived) {
+      return;
+    }
+    if (archived) {
+      const data = {
+        userId: userLogged.user.id,
+        noteId: note._id,
+        title: note._title,
+        description: note._description,
+        filed: note._filed,
+      };
+      const result = thunkDispatch(
+        updateNoteAction(data)
+      );
+    }
+    alert("Nota arquivada!");
+  };
   const handleEditNote = () => {
     if (!editTitle || editTitle.length < 3) {
       alert(
-        "Detalhe inválido! \nPreencha com pelo menos 3 caractéres"
+        "Titulo inválido! \nPreencha com pelo menos 3 caractéres"
       );
       return;
     }
+
     if (
       !editDescription ||
       editDescription.length < 3
@@ -78,15 +119,14 @@ const NoteItem: React.FC<NoteItemProps> = ({
       );
       return;
     }
-    // dispatch(
-    //   updateNote({
-    //     id: note.id,
-    //     changes: {
-    //       title: editTitle,
-    //       description: editDescription,
-    //     },
-    //   })
-    // );
+    const data = {
+      userId: userLogged.user.id,
+      noteId: note._id,
+      title: editTitle,
+      description: editDescription,
+      filed: note._filed,
+    };
+    thunkDispatch(updateNoteAction(data));
     alert("Nota editada!");
     setOpenEdit(false);
   };
@@ -104,7 +144,7 @@ const NoteItem: React.FC<NoteItemProps> = ({
               onClick={() => openEditModal(note)}
               edge="end"
               aria-label="edit"
-              sx={{ paddingRight: "20px" }}
+              sx={{ paddingRight: "10px" }}
             >
               <EditIcon />
             </IconButton>
@@ -114,11 +154,12 @@ const NoteItem: React.FC<NoteItemProps> = ({
               }
               edge="end"
               aria-label="delete"
+              sx={{ paddingRight: "10px" }}
             >
               <DeleteIcon />
             </IconButton>
             <IconButton
-              onClick={() => handleEditNote()}
+              onClick={() => handleArchived()}
               edge="end"
               aria-label="archived"
             >
@@ -144,8 +185,8 @@ const NoteItem: React.FC<NoteItemProps> = ({
           <TextField
             autoFocus
             margin="dense"
-            id="detalhe"
-            label="Detalhe"
+            id="titulo"
+            label="Titulo"
             type="text"
             value={editTitle || ""}
             onChange={(ev) =>

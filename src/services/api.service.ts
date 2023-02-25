@@ -3,7 +3,9 @@ import {
   ApiResponseType,
   CreateNoteType,
   CreateUserType,
+  DeleteNoteType,
   LoginUserType,
+  UpdateNoteType,
 } from "../types";
 
 const api = axios.create({
@@ -76,6 +78,47 @@ export const createNote = async (
   try {
     const result = await api.post(
       `user/${data.userId}/notes`,
+      data
+    );
+    return result.data;
+  } catch (error: any) {
+    if (error.request.response) {
+      const result = error.request.response;
+      return JSON.parse(result);
+    }
+    return {
+      ok: false,
+      message: error.toString(),
+    };
+  }
+};
+
+export const deleteNote = async (
+  path: DeleteNoteType
+): Promise<ApiResponseType> => {
+  try {
+    const result = await api.delete(
+      `user/${path.userId}/notes/${path.noteId}`
+    );
+    return result.data;
+  } catch (error: any) {
+    if (error.request.response) {
+      const result = error.request.response;
+      return JSON.parse(result);
+    }
+    return {
+      ok: false,
+      message: error.toString(),
+    };
+  }
+};
+
+export const updateNote = async (
+  data: UpdateNoteType
+): Promise<ApiResponseType> => {
+  try {
+    const result = await api.put(
+      `user/${data.userId}/notes/${data.noteId}`,
       data
     );
     return result.data;

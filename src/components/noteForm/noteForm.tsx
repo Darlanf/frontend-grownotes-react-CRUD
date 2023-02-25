@@ -10,10 +10,6 @@ import {
 } from "../../store/hooks";
 import { createNoteAction } from "../../store/modules/notesSlice";
 
-// interface NoteFormProps {
-//   action: (note: any) => void;
-// }
-
 const NoteForm: React.FC = () => {
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] =
