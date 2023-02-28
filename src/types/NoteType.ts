@@ -4,6 +4,12 @@ export interface CreateNoteType {
   description: string;
 }
 
+export interface ListNoteType {
+  userId: string;
+  title?: string;
+  filed?: string;
+}
+
 export interface DeleteNoteType {
   userId: string;
   noteId: string;

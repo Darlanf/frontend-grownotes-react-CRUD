@@ -81,8 +81,6 @@ const NoteItem: React.FC<NoteItemProps> = ({
   );
 
   const handleArchived = () => {
-    console.log(note._filed);
-
     if (note._filed === false) {
       // eslint-disable-next-line no-restricted-globals
       const archived = confirm(

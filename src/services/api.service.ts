@@ -7,10 +7,13 @@ import {
   LoginUserType,
   UpdateNoteType,
 } from "../types";
+import { ListNoteType } from "../types/NoteType";
 
 const api = axios.create({
-  baseURL: "http://localhost:3333",
+  baseURL: process.env.REACT_APP_API_URL,
 });
+
+// const api = axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 
 export const createUser = async (
   user: CreateUserType
@@ -52,11 +55,13 @@ export const loginUser = async (
 };
 
 export const listNotes = async (
-  userId: any
+  list: ListNoteType
 ): Promise<ApiResponseType> => {
   try {
     const result = await api.get(
-      `user/${userId}/notes`
+      `user/${list.userId}/notes?title=${
+        list.title ?? ""
+      }&filed=${list.filed ?? ""}`
     );
 
     return result.data;

@@ -1,13 +1,19 @@
-import React, { useEffect } from "react";
+import React, {
+  useEffect,
+  useState,
+} from "react";
 import {
   Button,
+  Fab,
   Grid,
   Paper,
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import {
   useThunkAppDispatch,
   useAppSelector,
+  useAppDispatch,
 } from "../store/hooks";
 import { useNavigate } from "react-router-dom";
 import ResponsiveAppBar from "../components/ResponsiveAppBar/ResponsiveAppBar";
@@ -17,36 +23,49 @@ import {
   listNotesAction,
   selectAll,
 } from "../store/modules/notesSlice";
+import SearchForm from "../components/searchForm/SearchForm";
+import { logout } from "../store/modules/loginSlice";
 
 const Home: React.FC = () => {
   const userLogged: any = useAppSelector(
     (state) => state.login
   );
-  console.log("user:", userLogged);
+
   const listNotes = useAppSelector(selectAll);
-  console.log("listNotes:", listNotes);
-  const dispatch = useThunkAppDispatch();
+
+  const thunkDispatch = useThunkAppDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (!userLogged.logged) {
+    if (userLogged.logged === false) {
       alert(
         "Realize o login para acessar suas notas!"
       );
       navigate("/login");
+      return;
     }
-    dispatch(listNotesAction(userLogged.user.id));
-  }, [userLogged, navigate, dispatch]);
+    const list = {
+      userId: userLogged.user.id,
+    };
+    thunkDispatch(listNotesAction(list));
+  }, [userLogged, navigate, thunkDispatch]);
 
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
   const handleLogOff = () => {
     // eslint-disable-next-line no-restricted-globals
-    const logOut = confirm(
+    const logoff = confirm(
       "Deseja realmente sair?"
     );
-    if (logOut) {
-      userLogged.user = {};
-      userLogged.logged = false;
-      console.log("logout:", userLogged);
+    if (logoff) {
+      dispatch(logout());
     }
     navigate("/login");
   };
@@ -55,8 +74,21 @@ const Home: React.FC = () => {
     <>
       <ResponsiveAppBar />
       <Grid container spacing={2}>
-        <Grid item xs={12}>
+        <Grid item xs={10}>
           <NoteForm />
+        </Grid>
+        <Grid item xs={2}>
+          <SearchForm
+            open={open}
+            close={handleClose}
+          />
+          <Fab
+            color="primary"
+            aria-label="add"
+            onClick={handleClickOpen}
+          >
+            <FilterAltIcon />
+          </Fab>
         </Grid>
         {listNotes.length && (
           <Grid item xs={12}>

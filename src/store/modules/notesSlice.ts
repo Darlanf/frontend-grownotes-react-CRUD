@@ -14,6 +14,7 @@ import {
   DeleteNoteType,
   UpdateNoteType,
 } from "../../types";
+import { ListNoteType } from "../../types/NoteType";
 
 const notesAdapter = createEntityAdapter<any>({
   selectId: (note) => note._id,
@@ -21,8 +22,8 @@ const notesAdapter = createEntityAdapter<any>({
 
 export const listNotesAction = createAsyncThunk(
   "list/notes",
-  async (userId: string) => {
-    const result = await listNotes(userId);
+  async (list: ListNoteType) => {
+    const result = await listNotes(list);
 
     if (result.ok) {
       return result.data;
@@ -35,7 +36,6 @@ export const createNoteAction = createAsyncThunk(
   "create/notes",
   async (data: CreateNoteType) => {
     const result = await createNote(data);
-    console.log(result.data);
 
     if (result.ok) {
       return result.data;
@@ -49,8 +49,6 @@ export const deleteNoteAction = createAsyncThunk(
   async (path: DeleteNoteType) => {
     const result = await deleteNote(path);
 
-    console.log(result.data);
-
     if (result.ok) {
       return result.data[0]._id;
     }
@@ -63,7 +61,7 @@ export const updateNoteAction = createAsyncThunk(
   async (data: UpdateNoteType) => {
     const result = await updateNote(data);
     let changes = {};
-    console.log(result.data.note);
+
     if (result.ok) {
       changes = {
         _title: data.title,
@@ -71,7 +69,6 @@ export const updateNoteAction = createAsyncThunk(
         _filed: data.filed,
       };
     }
-    console.log(changes);
 
     return {
       id: data.noteId,

@@ -19,7 +19,14 @@ const loginSlice = createSlice({
     logged: false,
     user: {} as any,
   },
-  reducers: {},
+  reducers: {
+    logout: () => {
+      return {
+        logged: false,
+        user: {} as any,
+      };
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(
       loginAction.fulfilled,
@@ -32,5 +39,5 @@ const loginSlice = createSlice({
     );
   },
 });
-
+export const { logout } = loginSlice.actions;
 export default loginSlice.reducer;
